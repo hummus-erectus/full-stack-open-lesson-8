@@ -1,6 +1,6 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
-const { v1: uuid } = require('uuid')
+const { GraphQLError } = require('graphql')
 
 const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
@@ -174,6 +174,31 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
+      const existingBook = await Book.findOne({ title: args.title });
+      if (existingBook) {
+        throw new GraphQLError('Title must be unique', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title
+          }
+        })
+      }
+      if (args.title.length<4) {
+        throw new GraphQLError('Title field must be at least five characters', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title
+          }
+        })
+      }
+      if (args.author.length<4) {
+        throw new GraphQLError('Author field must be at least four characters', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.author
+          }
+        })
+      }
       let author = await Author.findOne({ name: args.author })
 
       if (!author) {
