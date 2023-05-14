@@ -14,6 +14,8 @@ const Books = (props) => {
     return <div>loading...</div>
   }
 
+  console.log(result.data)
+
   const books = selectedGenre
   ? result.data.allBooks.filter(book => book.genres.includes(selectedGenre))
   : result.data.allBooks
@@ -23,15 +25,11 @@ const Books = (props) => {
   return (
     <div>
       <h2>books</h2>
-
-      {genres.map(genre => (
-        <button key={genre} onClick={() => setSelectedGenre(genre)}>
-          {genre}
-        </button>
-      ))}
-
-      <button onClick={() => setSelectedGenre(null)}>all genres</button>
-
+      {selectedGenre ?
+        <p>Filered genre: <strong>{selectedGenre}</strong></p>
+        :
+        <p>Displaying all genres</p>
+      }
       <table>
         <tbody>
           <tr>
@@ -48,6 +46,12 @@ const Books = (props) => {
           ))}
         </tbody>
       </table>
+      {genres.map(genre => (
+        <button key={genre} onClick={() => setSelectedGenre(genre)}>
+          {genre}
+        </button>
+      ))}
+      <button onClick={() => setSelectedGenre(null)}>all genres</button>
     </div>
   )
 }
