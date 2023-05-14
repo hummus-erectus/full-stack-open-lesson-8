@@ -14,8 +14,6 @@ const Books = (props) => {
     return <div>loading...</div>
   }
 
-  console.log(result.data)
-
   const books = selectedGenre
   ? result.data.allBooks.filter(book => book.genres.includes(selectedGenre))
   : result.data.allBooks
