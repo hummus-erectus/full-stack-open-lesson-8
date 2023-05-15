@@ -4,21 +4,24 @@ import { ALL_BOOKS } from '../queries'
 
 const Books = (props) => {
   const [selectedGenre, setSelectedGenre] = useState(null)
-  const result = useQuery(ALL_BOOKS)
+
+  const { loading, data } = useQuery(ALL_BOOKS, {
+    variables: { genre: selectedGenre }
+  })
+
+  const allBooksData = useQuery(ALL_BOOKS)
 
   if (!props.show) {
     return null
   }
 
-  if (result.loading)  {
+  if (loading)  {
     return <div>loading...</div>
   }
 
-  const books = selectedGenre
-  ? result.data.allBooks.filter(book => book.genres.includes(selectedGenre))
-  : result.data.allBooks
+  const books = data.allBooks
 
-  const genres = [...new Set(result.data.allBooks.flatMap(book => book.genres))]
+  const genres = [...new Set(allBooksData.data.allBooks.flatMap(book => book.genres))]
 
   return (
     <div>
