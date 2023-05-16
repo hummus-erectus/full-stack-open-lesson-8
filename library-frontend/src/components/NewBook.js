@@ -13,6 +13,13 @@ const NewBook = (props) => {
 
   const [ addBook ] = useMutation(ADD_BOOK, {
     refetchQueries: [ { query: ALL_BOOKS }, {query: ALL_AUTHORS} ],
+    update: (cache, { data: { addBook } }) => {
+      const { allBooks } = cache.readQuery({ query: ALL_BOOKS });
+      cache.writeQuery({
+        query: ALL_BOOKS,
+        data: { allBooks: allBooks.concat(addBook) },
+      });
+    }
     // onError: (error) => {
     //   const errors = error.graphQLErrors[0].extensions.error.errors
     //   const messages = Object.values(errors).map(e => e.message).join('\n')

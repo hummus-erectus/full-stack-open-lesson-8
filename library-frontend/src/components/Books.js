@@ -6,7 +6,7 @@ const Books = (props) => {
   const [selectedGenre, setSelectedGenre] = useState(null)
 
   const { loading, data } = useQuery(ALL_BOOKS, {
-    variables: { genre: selectedGenre }
+    variables: selectedGenre && { genre: selectedGenre }
   })
 
   const allBooksData = useQuery(ALL_BOOKS)
