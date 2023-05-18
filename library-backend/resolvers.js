@@ -2,14 +2,26 @@ const { GraphQLError } = require('graphql')
 const jwt = require('jsonwebtoken')
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
+const DataLoader = require('dataloader')
 
 const Author = require('./models/author')
 const Book = require('./models/book')
 const User = require('./models/user')
 
+const bookLoader = new DataLoader(async (authorIds) => {
+  const books = await Book.find({ author: { $in: authorIds } })
+  const booksByAuthor = authorIds.map((authorId) =>
+    books.filter((book) => book.author.toString() === authorId.toString())
+  )
+  return booksByAuthor
+})
+
 const resolvers = {
   Query: {
-    bookCount: async () => Book.collection.countDocuments(),
+    bookCount: async () => {
+      console.log('Book.colection.countDocuments')
+      return Book.collection.countDocuments()
+    },
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
       if (args.genre) {
@@ -18,11 +30,12 @@ const resolvers = {
       return Book.find({})
     },
     allAuthors: async (root, args) => {
-      return Author.find({})
+      console.log('Author.find')
+      return Author.find({}).populate('books')
     },
     me: (root, args, context) => {
       return context.currentUser
-    }
+    },
   },
   Book: {
     author: async (root) => {
@@ -37,8 +50,12 @@ const resolvers = {
 
   Author: {
     bookCount: async (root) => {
-      const authorsBooks = await Book.find({ author: root.id })
+      const authorsBooks = await bookLoader.load(root.id)
       return authorsBooks.length
+    },
+    books: async (root) => {
+      const authorsBooks = await bookLoader.load(root.id)
+      return authorsBooks
     },
   },
   Mutation: {
